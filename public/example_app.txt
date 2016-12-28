@@ -1,0 +1,318 @@
+change to jsx for easy reading
+
+var Greeter = React.createClass({
+    render: function(){
+      /*return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'h1',
+          null,
+          'Hello!'
+        ),
+        React.createElement(
+          'p',
+          null,
+          'The wonderful world of react'
+        )
+      );
+      This is what jsx does for us*/
+      return(
+        <div>
+          <h1>Hello React</h1>
+          <p>This is a paragraph</p>
+        </div>
+        //can only return ONE root html element.
+      );
+    }
+});
+
+
+ReactDOM.render(
+  <Greeter/>,
+  //calls Greeter class
+  document.getElementById('app')
+);
+
+/* go to "babeljs.io/repl" to see how much work jsx does in the
+background*/
+
+
+//_______________________________________________________________
+pass properties
+
+
+
+
+var Greeter = React.createClass({
+  getDefaultProps: function(){
+    return {
+      myMessage: 'Heres my message',
+      name: 'Brandon B',
+      anchor: '2016/react tutorial'
+    };
+  },
+  //sets up default properties. Only displayed when specifically
+  //called- otherwise left blank.
+    render: function(){
+      var anchor = this.props.anchor;
+      var message = this.props.myMessage;
+      var name = this.props.name;
+      //create a name property for this class, point to it
+      //with the variable 'name'
+      return(
+        <div>
+          <h1>Hello {name}</h1>
+          <p>{message + '!!'}</p> //concatenate within prop call
+          <p>{anchor}</p>
+        </div>
+      );
+    }
+});
+
+var firstname = 'Brandon';
+
+ReactDOM.render(
+  <Greeter name={firstname} myMessage="Here is another message"/>,
+  //  add a name property here too.  Overrides default.
+  document.getElementById('app')
+);
+
+  //=> Hello Brandon
+  //   Here is another message!!
+
+
+//________________________________________________________________
+Basic forms
+
+{/*jsx comments*/}
+
+var Greeter = React.createClass({
+  getDefaultProps: function(){
+    return {
+      myMessage: 'Heres my message',
+      name: 'Brandon B',
+      anchor: '2016/react tutorial'
+    };
+  },
+
+    onButtonClick: function(e){
+      /*'e' is the covention for 'event' parameter*/
+      e.preventDefault();
+      /*prevents default page refresh on submission*/
+      var name = this.refs.name.value
+      alert(name);
+    },
+
+    render: function(){
+      var anchor = this.props.anchor;
+      var message = this.props.myMessage;
+      var name = this.props.name;
+
+      return(
+        <div>
+          <h1>Hello {name}</h1>
+          <p>{message + '!!'}</p>
+          <p>{anchor}</p>
+
+          <form onSubmit={this.onButtonClick}>
+            {/*when the button is clicked, onButtonClick function*/}
+             {/*is invoked*/}
+            <input type='text' ref='name'/>
+            {/*ref === variable that points to the text field value*/}
+            {/*so we can get the value to the function above*/}
+            <button>Set Name</button>
+          </form>
+        </div>
+      );
+    }
+});
+
+var firstname = 'Brandon';
+
+ReactDOM.render(
+  <Greeter name={firstname} myMessage="Here is another message"/>,
+  document.getElementById('app')
+);
+
+//_______________________________________________________________
+state v props
+
+State data can be mutated by the component, while props are immutable
+
+
+
+var Greeter = React.createClass({
+  getDefaultProps: function(){
+    return {
+      myMessage: 'Heres my message',
+      name: 'Brandon B',
+      anchor: '2016/react tutorial'
+    };
+  },
+  /*default props: props passed below override these values*/
+
+    /*getInitialState returns an object set to this.state*/
+    getInitialState: function(){
+      return {
+        name: this.props.name
+        /*we know there is a name property by default, here
+        we pass it to the name state initializer*/
+      }
+    },
+
+    onButtonClick: function(e){
+      e.preventDefault();
+      var nameRef = this.refs.name
+      var name = nameRef.value
+      /*'name' points to the value of input*/
+      nameRef.value = '';
+      /*clears input, looks nice*/
+
+      if (typeof name === 'string' && name.length > 0){
+        this.setState({
+          name: name
+        });
+      }
+      /*conditional prevents empty state*/
+      /*sets the name state with the name value input and
+      re-renders any instances of the name state jsx.  React
+      is smart like that*/
+    },
+
+    render: function(){
+      var anchor = this.props.anchor;
+      var message = this.props.myMessage;
+      var name = this.state.name;
+      /*the name state is passed down for jsx to access with
+      the 'name' variable and display below with {name}*/
+      return(
+        <div>
+          <h1>Hello {name}</h1>
+          <p>{message + '!!'}</p>
+          <p>{anchor}</p>
+
+          <form onSubmit={this.onButtonClick}>
+            <input type='text' ref='name'/>
+            <button>Set Name</button>
+          </form>
+        </div>
+      );
+    }
+});
+
+var firstname = 'Brandon';
+
+ReactDOM.render(
+  <Greeter name={firstname} myMessage="Here is another message"/>,
+  document.getElementById('app')
+);
+
+//________________________________________________________________
+
+Breaking the above app into nested components
+
+
+var GreeterMessage = React.createClass({
+  render: function(){
+    return (
+      <div>
+        <h1>Some h1</h1>
+        <p>some p</p>
+      </div>
+    );
+  }
+})
+/*Every react component must have a render function*/
+
+var GreeterForm = React.createClass({
+  render: function(){
+    return (
+      <form>
+        <input type="text" ref="name"></input>
+        <button>Set Name</button>
+      </form>
+    );
+  }
+})
+/*GreeterMessage and GreeterForm can be called by Greeter-
+This is called nesting components.  It keeps everything easy
+and clean.
+Both are static as of this point*/
+
+/*Both the above components are presentational.  They do not
+maintain state like the container component, Greet.  The
+container component maintains the 'name' state.  The presentational
+components display data and pass input data to the container
+where the state can be updated.  The presentational components
+are children of the container.
+GreetForm passes input from the user to Greeter to change the name state,
+Greeter updates the GreeterMessage child with the new data and
+renders the new GreeterMessage display
+*/
+
+var Greeter = React.createClass({
+  getDefaultProps: function(){
+    return {
+      myMessage: 'Heres my message',
+      name: 'Brandon B',
+      anchor: '2016/react tutorial'
+    };
+  },
+
+    getInitialState: function(){
+      return {
+        name: this.props.name
+      }
+    },
+
+    onButtonClick: function(e){
+      e.preventDefault();
+      var nameRef = this.refs.name;
+      var name = nameRef.value;
+      nameRef.value = '';
+
+      if (typeof name === 'string' && name.length > 0){
+        this.setState({
+          name: name
+        });
+      };
+    },
+
+    render: function(){
+      var anchor = this.props.anchor;
+      var message = this.props.myMessage;
+      var name = this.state.name;
+      return(
+        <div>
+          <h1>Hello {name}</h1>
+          <p>{message + '!!'}</p>
+          <p>{anchor}</p>
+
+          <GreeterMessage/>
+          {/*Called here*/}
+
+          <form onSubmit={this.onButtonClick}>
+            <input type='text' ref='name'/>
+            <button>Set Name</button>
+          </form>
+
+          <GreeterForm/>
+          {/*and called here*/}
+
+        </div>
+      );
+    }
+});
+
+var firstname = 'Brandon';
+
+ReactDOM.render(
+  <Greeter name={firstname} myMessage="Here is another message"/>,
+  document.getElementById('app')
+);
+
+Now Greeter is like the container, and the other components are
+elements within Greeter.
+
+//_______________________________________________________________
